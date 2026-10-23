@@ -720,6 +720,7 @@ h1 {
 
 .a-breathe { animation-name: breathe; animation-duration: 3.6s; }
 .a-hat { animation-name: hat; animation-duration: 4.4s; }
+.a-wing { animation-name: wing; animation-duration: 0.9s; }
 .a-blink { animation-name: blink; animation-duration: 4.6s; }
 .a-scarf { animation-name: scarf; animation-duration: 2.2s; }
 .a-wave { animation-name: wave; animation-duration: 1.6s; }
@@ -751,6 +752,7 @@ h1 {
 .a-rise { animation-name: rise; }
 
 @keyframes breathe { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.01, 1.025); } }
+@keyframes wing { 0%, 100% { transform: rotate(0deg) scaleX(1); } 50% { transform: rotate(-10deg) scaleX(0.82); } }
 @keyframes hat { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(4deg); } }
 @keyframes blink { 0%, 90%, 100% { transform: scaleY(1); } 94% { transform: scaleY(0.1); } }
 @keyframes scarf { 0%, 100% { transform: rotate(-6deg) skewY(0deg); } 50% { transform: rotate(10deg) skewY(-6deg); } }
