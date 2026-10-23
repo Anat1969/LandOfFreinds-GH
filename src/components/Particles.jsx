@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 
-// רקע חלקיקים זוהרים. מכבד הגדרת "הפחתת תנועה" במערכת ההפעלה.
+// אבקת אור עדינה שמרחפת מעל הנייר. מכבד הגדרת "הפחתת תנועה" במערכת ההפעלה.
 export default function Particles() {
   const canvasRef = useRef(null);
 
@@ -26,7 +26,7 @@ export default function Particles() {
         r: Math.random() * 1.8 + 0.4,
         vx: (Math.random() - 0.5) * 0.15,
         vy: -Math.random() * 0.25 - 0.05,
-        hue: Math.random() < 0.6 ? 40 : 270,
+        hue: Math.random() < 0.55 ? 40 : 205,
         phase: Math.random() * Math.PI * 2,
       }));
     }
@@ -43,7 +43,7 @@ export default function Particles() {
         }
         const pulse = 0.4 + 0.6 * Math.abs(Math.sin(time / 1400 + p.phase));
         ctx.beginPath();
-        ctx.fillStyle = `hsla(${p.hue}, 90%, 72%, ${0.15 + pulse * 0.4})`;
+        ctx.fillStyle = `hsla(${p.hue}, 70%, 58%, ${0.1 + pulse * 0.28})`;
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
         ctx.fill();
       }

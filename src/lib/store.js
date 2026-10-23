@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 
 // יומן אישי נשמר רק בדפדפן של המכשיר. אין שרת ואין חשבונות.
-const KEY = 'mamlechet-hapnim:journal:v1';
+// גרסה 2: כל רשומה שומרת את סוג השליפה ואת רשימת הקלפים.
+const KEY = 'mamlechet-hapnim:journal:v2';
 
 function read() {
   try {
@@ -24,7 +25,8 @@ export function useJournal() {
   }, [entries]);
 
   function add(entry) {
-    setEntries((prev) => [{ ...entry, id: crypto.randomUUID(), createdAt: new Date().toISOString() }, ...prev]);
+    const id = globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    setEntries((prev) => [{ ...entry, id, createdAt: new Date().toISOString() }, ...prev]);
   }
 
   function remove(id) {

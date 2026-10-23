@@ -1,23 +1,26 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import Particles from './components/Particles.jsx';
 import TopBar from './components/TopBar.jsx';
+import ArtDefs from './art/ArtDefs.jsx';
 import Home from './pages/Home.jsx';
+import Deck from './pages/Deck.jsx';
 import Draw from './pages/Draw.jsx';
-import Pair from './pages/Pair.jsx';
 import Journal from './pages/Journal.jsx';
-import About from './pages/About.jsx';
+import Play from './pages/Play.jsx';
 import { useRoute } from './lib/router.js';
 
 function renderPage(route) {
   switch (route.path) {
+    case '/deck':
+      return <Deck params={route.params} />;
     case '/draw':
-      return <Draw params={route.params} />;
     case '/pair':
-      return <Pair params={route.params} />;
+      return <Draw params={route.params} />;
     case '/journal':
       return <Journal />;
+    case '/play':
     case '/about':
-      return <About />;
+      return <Play />;
     default:
       return <Home />;
   }
@@ -29,16 +32,17 @@ export default function App() {
 
   return (
     <div className="app">
+      <ArtDefs />
       <Particles />
       <TopBar path={route.path} />
       <main className="main">
         <AnimatePresence mode="wait">
           <motion.div
             key={pageKey}
-            initial={{ opacity: 0, y: 14 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.35, ease: 'easeOut' }}
+            transition={{ duration: 0.4, ease: [0.2, 0.8, 0.2, 1] }}
           >
             {renderPage(route)}
           </motion.div>
