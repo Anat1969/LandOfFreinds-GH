@@ -1,21 +1,23 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import Card3D from '../components/Card3D.jsx';
 import CardCover from '../components/CardCover.jsx';
-import { CARDS, SPREAD_THREE, getCard } from '../data/cards.js';
+import { CARDS, SHEDIM, SPREAD_THREE, getCard } from '../data/cards.js';
 import { go } from '../lib/router.js';
 import { useJournal } from '../lib/store.js';
 import { sample, useReducedMotion } from '../lib/motion.js';
 
+// מצבי שליפה. deck קובע מאיזו חפיסה שולפים; duo שולף שדון ואז בוחרים כוח קסם מולו.
 const MODES = [
-  { key: 'one', label: 'קלף אחד', need: 1 },
-  { key: 'pick', label: 'בחירה מהמניפה', need: 1 },
-  { key: 'three', label: 'פריסת שלושה', need: 3 },
+  { key: 'shed', label: 'איזה שדון מנהל אותי?', deck: 'shed', need: 1, pick: true, lead: 'שבעה שדונים הפוכים במניפה. בוחרים אחד בלי לחשוב יותר מדי, ופוגשים את השדון שמנהל אותי עכשיו.' },
+  { key: 'duo', label: 'שדון וכוח', deck: 'shed', need: 2, lead: 'שולפים שדון, ואז בוחרים כוח קסם שיכול לעזור מולו. כדאי לנמק למה דווקא הכוח הזה.' },
+  { key: 'one', label: 'כוח קסם אחד', deck: 'power', need: 1, lead: 'מערבבים את חפיסת כוחות הקסם ושולפים קלף. לחיצה על הקלף הופכת אותו לשאלה ולתרגול.' },
+  { key: 'pick', label: 'כוח מהמניפה', deck: 'power', need: 1, pick: true, lead: 'שבעה כוחות קסם הפוכים. בוחרים אחד לפי תחושה.' },
+  { key: 'three', label: 'פריסת שלושה כוחות', deck: 'power', need: 3, lead: 'שלושה כוחות בשלוש עמדות: כוח שכבר יש בי, כוח שאפשר לחזק, וכוח לדרך.' },
 ];
 const FAN_SIZE = 7;
 
-// חפיסה סגורה בתלת־ממד. בזמן ערבוב הקלפים נחצים לשני צדדים ומשתלבים בחזרה.
-function DeckStack({ shuffling }) {
+function DeckStack({ shuffling, deck }) {
   return (
     <div className="deck-stack" aria-hidden="true">
       {Array.from({ length: 9 }).map((_, i) => {
@@ -37,7 +39,7 @@ function DeckStack({ shuffling }) {
             }
             transition={{ duration: 1.4, delay: shuffling ? (i % 2) * 0.05 + i * 0.02 : 0, ease: 'easeInOut' }}
           >
-            <CardCover />
+            <CardCover deck={deck} />
           </motion.div>
         );
       })}
@@ -45,7 +47,7 @@ function DeckStack({ shuffling }) {
   );
 }
 
-function Fan({ cards, onPick }) {
+function Fan({ cards, deck, onPick }) {
   const mid = (cards.length - 1) / 2;
   return (
     <div className="fan-pick">
@@ -65,7 +67,7 @@ function Fan({ cards, onPick }) {
             transition={{ duration: 0.6, delay: i * 0.05, ease: [0.2, 0.8, 0.2, 1] }}
             onClick={() => onPick(card)}
           >
-            <CardCover />
+            <CardCover deck={deck} />
           </motion.button>
         );
       })}
@@ -75,12 +77,14 @@ function Fan({ cards, onPick }) {
 
 export default function Draw({ params }) {
   const mode = MODES.find((m) => m.key === params.mode) ?? MODES[0];
-  const dealtCards = (params.cards ?? '').split(',').map(getCard).filter(Boolean);
-  const dealt = dealtCards.length === mode.need ? dealtCards : null;
+  const pool = mode.deck === 'shed' ? SHEDIM : CARDS;
+  const ids = (params.cards ?? '').split(',').map(getCard).filter(Boolean);
+  const dealt = ids.length === mode.need ? ids : null;
+  const duoShed = mode.key === 'duo' && ids.length === 1 && ids[0].deck === 'shed' ? ids[0] : null;
   const reduce = useReducedMotion();
 
   const [shuffling, setShuffling] = useState(false);
-  const [fan, setFan] = useState(() => sample(CARDS, FAN_SIZE));
+  const [fan, setFan] = useState(() => sample(pool, FAN_SIZE));
   const [fanKey, setFanKey] = useState(0);
   const [fresh, setFresh] = useState(false);
   const [flipped, setFlipped] = useState({});
@@ -88,8 +92,12 @@ export default function Draw({ params }) {
   const [saved, setSaved] = useState(false);
   const { add } = useJournal();
 
-  function route(modeKey, ids) {
-    go(`/draw?mode=${modeKey}${ids ? `&cards=${ids.join(',')}` : ''}`);
+  useEffect(() => {
+    setFan(sample(pool, FAN_SIZE));
+  }, [pool]);
+
+  function route(modeKey, list) {
+    go(`/draw?mode=${modeKey}${list ? `&cards=${list.join(',')}` : ''}`);
   }
 
   function shuffleAndDeal() {
@@ -100,7 +108,8 @@ export default function Draw({ params }) {
       setFresh(true);
       setFlipped({});
       setSaved(false);
-      route(mode.key, sample(CARDS, mode.need).map((c) => c.id));
+      const need = mode.key === 'duo' ? 1 : mode.need;
+      route(mode.key, sample(pool, need).map((c) => c.id));
     }, reduce ? 60 : 1500);
   }
 
@@ -108,11 +117,16 @@ export default function Draw({ params }) {
     setFresh(true);
     setFlipped({});
     setSaved(false);
-    route('pick', [card.id]);
+    route(mode.key, [card.id]);
+  }
+
+  function choosePower(power) {
+    setFresh(true);
+    route('duo', [duoShed.id, power.id]);
   }
 
   function again() {
-    setFan(sample(CARDS, FAN_SIZE));
+    setFan(sample(pool, FAN_SIZE));
     setFanKey((k) => k + 1);
     setText('');
     setSaved(false);
@@ -125,75 +139,93 @@ export default function Draw({ params }) {
     setSaved(true);
   }
 
+  const shown = dealt ?? (duoShed ? [duoShed] : null);
+  const label = (card, i) =>
+    mode.key === 'three' ? SPREAD_THREE[i].label : mode.key === 'duo' ? (card.deck === 'shed' ? 'השדון' : 'כוח הקסם') : null;
+
   return (
     <section className="page draw">
       <header className="page-head">
         <p className="eyebrow">שליפה</p>
         <h1>{mode.label}</h1>
-        <p className="lead">
-          {mode.key === 'pick'
-            ? 'הקלפים פרושים הפוכים. בוחרים אחד לפי תחושה.'
-            : mode.key === 'three'
-              ? 'שלושה קלפים, שלוש עמדות: כוח שכבר יש בי, כוח שאפשר לחזק, וכוח לדרך.'
-              : 'מערבבים את החפיסה ושולפים קלף אחד. לחיצה על הקלף הופכת אותו לשאלה ולתרגול.'}
-        </p>
+        <p className="lead">{mode.lead}</p>
       </header>
 
       <div className="filter-row" role="tablist" aria-label="סוג שליפה">
         {MODES.map((m) => (
           <a key={m.key} role="tab" aria-selected={mode.key === m.key} href={`#/draw?mode=${m.key}`}
-            className={mode.key === m.key ? 'filter active' : 'filter'}>
+            className={`${mode.key === m.key ? 'filter active' : 'filter'} filter--${m.deck}`}>
             {m.label}
           </a>
         ))}
       </div>
 
-      <div className={`table${dealt ? ' table--dealt' : ''}`}>
+      <div className={`table${shown ? ' table--dealt' : ''}`}>
         <AnimatePresence mode="wait">
-          {dealt ? (
-            <motion.div key={`dealt-${dealt.map((c) => c.id).join('-')}`} className={`slots slots--${dealt.length}`}
+          {shown ? (
+            <motion.div key={`dealt-${shown.map((c) => c.id).join('-')}`} className={`slots slots--${shown.length}`}
               initial={{ opacity: 1 }} exit={{ opacity: 0, y: 20 }}>
-              {dealt.map((card, i) => (
+              {shown.map((card, i) => (
                 <div key={card.id} className="slot">
-                  {mode.key === 'three' && <span className="slot-label">{SPREAD_THREE[i].label}</span>}
+                  {label(card, i) && <span className="slot-label">{label(card, i)}</span>}
                   <motion.div
                     className="slot-card"
                     initial={fresh && !reduce ? { opacity: 0, y: -140, rotateY: -180, scale: 0.7 } : { opacity: 0 }}
                     animate={{ opacity: 1, y: 0, rotateY: 0, scale: 1 }}
                     transition={{ duration: 1, delay: fresh ? i * 0.28 : 0, ease: [0.2, 0.8, 0.2, 1] }}
                   >
-                    <Card3D card={card} size={dealt.length === 3 ? 'md' : 'lg'} live
+                    <Card3D card={card} size={shown.length === 3 ? 'md' : shown.length === 2 ? 'md' : 'lg'} live
                       flipped={!!flipped[card.id]} onClick={() => setFlipped((f) => ({ ...f, [card.id]: !f[card.id] }))} />
                   </motion.div>
                 </div>
               ))}
             </motion.div>
-          ) : mode.key === 'pick' ? (
-            <motion.div key={`fan-${fanKey}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <Fan cards={fan} onPick={pick} />
+          ) : mode.pick ? (
+            <motion.div key={`fan-${mode.key}-${fanKey}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <Fan cards={fan[0]?.deck === mode.deck ? fan : []} deck={mode.deck} onPick={pick} />
             </motion.div>
           ) : (
-            <motion.div key="stack" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}>
-              <DeckStack shuffling={shuffling} />
+            <motion.div key={`stack-${mode.deck}`} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}>
+              <DeckStack shuffling={shuffling} deck={mode.deck} />
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
+      {duoShed && (
+        <motion.div className="duo-choose" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
+          <h2>איזה כוח קסם יעזור מול {duoShed.name}?</h2>
+          <p className="hint">אלה כוחות שמתאימים במיוחד. אפשר גם לבחור כוח אחר מהחפיסה.</p>
+          <div className="duo-row">
+            {duoShed.powers.map(getCard).map((p) => (
+              <button key={p.id} type="button" className="duo-option" onClick={() => choosePower(p)} aria-label={`בחירת ${p.name}`}>
+                <Card3D card={p} size="sm" />
+              </button>
+            ))}
+            <button type="button" className="duo-option duo-option--random" onClick={() => choosePower(sample(CARDS, 1)[0])}>
+              <CardCover deck="power" />
+              <span>כוח אקראי</span>
+            </button>
+          </div>
+        </motion.div>
+      )}
+
       <div className="cta-row center">
-        {dealt ? (
+        {shown ? (
           <>
             <button type="button" className="btn btn--primary" onClick={again}>שליפה חדשה</button>
-            <button type="button" className="btn" onClick={() => setFlipped(Object.fromEntries(dealt.map((c) => [c.id, !flipped[dealt[0].id]])))}>
-              הפיכת {dealt.length === 1 ? 'הקלף' : 'הקלפים'}
+            <button type="button" className="btn" onClick={() => setFlipped(Object.fromEntries(shown.map((c) => [c.id, !flipped[shown[0].id]])))}>
+              הפיכת {shown.length === 1 ? 'הקלף' : 'הקלפים'}
             </button>
-            {dealt.length === 1 && <a className="btn" href={`#/deck?card=${dealt[0].id}`}>הקלף בחפיסה</a>}
+            {shown.length === 1 && shown[0].deck === 'shed' && (
+              <a className="btn" href={`#/games/id?shed=${shown[0].id}`}>תעודת זהות לשדון</a>
+            )}
           </>
-        ) : mode.key === 'pick' ? (
+        ) : mode.pick ? (
           <button type="button" className="btn" onClick={again}>ערבוב המניפה</button>
         ) : (
           <button type="button" className="btn btn--primary" onClick={shuffleAndDeal} disabled={shuffling}>
-            {shuffling ? 'מערבבים' : 'ערבוב ושליפה'}
+            {shuffling ? 'מערבבים' : mode.key === 'duo' ? 'שליפת שדון' : 'ערבוב ושליפה'}
           </button>
         )}
       </div>
@@ -208,7 +240,7 @@ export default function Draw({ params }) {
             ))}
           </div>
           <label className="field">
-            <span>מה הקלף מעורר בי?</span>
+            <span>{mode.key === 'duo' ? 'למה הכוח הזה עוזר מול השדון הזה?' : 'מה הקלף מעורר בי?'}</span>
             <textarea rows={4} value={text} onChange={(e) => { setText(e.target.value); setSaved(false); }} placeholder="כמה מילים מספיקות" />
           </label>
           <div className="cta-row">

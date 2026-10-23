@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { motion, useMotionTemplate, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import CardArt from './CardArt.jsx';
+import { getCard } from '../data/cards.js';
 
 // קלף תלת־ממדי: נטייה לפי הסמן, שכבות איור בעומקים שונים (פרלקסה), ברק נייר, והיפוך לגב עם המשמעות.
 export default function Card3D({ card, flipped = false, onClick, size = 'md', interactive = true, live = false, label }) {
@@ -55,7 +56,7 @@ export default function Card3D({ card, flipped = false, onClick, size = 'md', in
           animate={{ rotateY: flipped ? 180 : 0 }}
           transition={{ duration: 0.8, ease: [0.2, 0.8, 0.2, 1] }}
         >
-          <div className="face front">
+          <div className={`face front face--${card.deck}`}>
             <CardArt card={card} />
             <div className="card-title">
               <h3>{card.name}</h3>
@@ -64,21 +65,35 @@ export default function Card3D({ card, flipped = false, onClick, size = 'md', in
             <motion.div className="glare" style={{ background: glare }} />
           </div>
 
-          <div className="face back">
+          <div className={`face back face--${card.deck}`}>
             <div className="back-wash" style={{ '--c1': card.sky[0], '--c2': card.sky[1] }}>
               <h3>{card.name}</h3>
             </div>
-            <div className="back-body">
-              <p className="back-line">{card.line}</p>
-              <div className="back-block">
-                <span className="back-label">שאלה</span>
-                <p>{card.question}</p>
+            {card.deck === 'shed' ? (
+              <div className="back-body">
+                <p className="back-line">"{card.whisper}"</p>
+                <div className="back-block">
+                  <span className="back-label">שאלה</span>
+                  <p>{card.question}</p>
+                </div>
+                <div className="back-block">
+                  <span className="back-label">כוחות קסם שעוזרים</span>
+                  <p>{card.powers.map((id) => getCard(id)?.name).filter(Boolean).join(' · ')}</p>
+                </div>
               </div>
-              <div className="back-block">
-                <span className="back-label">לנסות</span>
-                <p>{card.practice}</p>
+            ) : (
+              <div className="back-body">
+                <p className="back-line">{card.line}</p>
+                <div className="back-block">
+                  <span className="back-label">שאלה</span>
+                  <p>{card.question}</p>
+                </div>
+                <div className="back-block">
+                  <span className="back-label">לנסות</span>
+                  <p>{card.practice}</p>
+                </div>
               </div>
-            </div>
+            )}
             <motion.div className="glare" style={{ background: glare }} />
           </div>
         </motion.div>

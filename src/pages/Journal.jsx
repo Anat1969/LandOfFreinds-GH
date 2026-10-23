@@ -2,7 +2,10 @@ import Card3D from '../components/Card3D.jsx';
 import { SPREAD_THREE, getCard } from '../data/cards.js';
 import { useJournal } from '../lib/store.js';
 
-const MODE_LABELS = { one: 'קלף אחד', pick: 'בחירה מהמניפה', three: 'פריסת שלושה' };
+const MODE_LABELS = {
+  one: 'כוח קסם אחד', pick: 'כוח מהמניפה', three: 'פריסת שלושה כוחות', shed: 'איזה שדון מנהל אותי',
+  duo: 'שדון וכוח', pairs: 'משחק זוגות', id: 'תעודת זהות לשדון',
+};
 
 function formatDate(iso) {
   try {
@@ -47,8 +50,8 @@ export default function Journal() {
 
       {entries.length === 0 ? (
         <div className="empty">
-          <p>עדיין אין רשומות. אחרי שליפה ראשונה, מה שנכתב יופיע כאן.</p>
-          <a className="btn btn--primary" href="#/draw?mode=one">לשליפה</a>
+          <p>עדיין אין רשומות. אחרי שליפה, משחק או תעודת זהות לשדון, מה שנשמר יופיע כאן.</p>
+          <a className="btn btn--primary" href="#/draw?mode=shed">איזה שדון מנהל אותי?</a>
         </div>
       ) : (
         <>
@@ -67,7 +70,10 @@ export default function Journal() {
                 </div>
                 <div className="entry-body">
                   <div className="entry-head">
-                    <span className="entry-pair">{cardNames(entry).join(' · ')}</span>
+                    <span className="entry-pair">
+                      <span className="entry-mode">{MODE_LABELS[entry.mode] ?? ''}</span>
+                      {cardNames(entry).join(' · ')}
+                    </span>
                     <time dateTime={entry.createdAt}>{formatDate(entry.createdAt)}</time>
                   </div>
                   <p className="entry-text">{entry.text || 'לא נכתב טקסט'}</p>

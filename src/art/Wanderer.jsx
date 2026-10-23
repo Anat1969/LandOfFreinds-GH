@@ -1,4 +1,4 @@
-// השדון: הדמות המקורית של החפיסה. אוזניים מחודדות, אף ארוך, כנפיים שקופות קטנות, כובע גבוה, צעיף ונעליים מחודדות.
+// הנודד: הגיבור של קלפי כוחות הקסם. אף ארוך, כובע גבוה, צעיף ונעליים מחודדות. השדונים הם יצורים נפרדים (Shed.jsx).
 // כל מפרק מונפש סביב ראשית הצירים המקומית שלו, כך שאנימציות CSS מסתובבות בדיוק מהכתף, מהירך או מהכובע.
 
 export const INK = '#2b2431';
@@ -92,38 +92,6 @@ function Hat({ type, tilt }) {
   );
 }
 
-// אוזני שדון מחודדות, מאחורי הראש.
-function Ears() {
-  return (
-    <g>
-      <path d="M -11 -126 Q -22 -131 -27 -140 Q -22 -122 -11 -115 Z" fill="var(--skin)" stroke={INK} strokeWidth="1.2" strokeLinejoin="round" />
-      <path d="M -13 -123 Q -19 -127 -22 -133" stroke="#e9877a" strokeWidth="1.2" fill="none" opacity="0.55" strokeLinecap="round" />
-      <path d="M 11 -126 Q 22 -131 27 -140 Q 22 -122 11 -115 Z" fill="var(--skin)" stroke={INK} strokeWidth="1.2" strokeLinejoin="round" />
-      <path d="M 13 -123 Q 19 -127 22 -133" stroke="#e9877a" strokeWidth="1.2" fill="none" opacity="0.55" strokeLinecap="round" />
-    </g>
-  );
-}
-
-// כנפיים שקופות קטנות מאחורי הכתפיים, מרפרפות.
-function Wings() {
-  const wing = (
-    <g>
-      <path d="M 0 0 Q -30 -38 -44 -22 Q -46 -6 0 0 Z" fill="#eef7fc" fillOpacity="0.62" stroke="#7fa6bf" strokeWidth="1" strokeLinejoin="round" />
-      <path d="M 0 0 Q -24 -20 -38 -18 M 0 0 Q -20 -10 -40 -9" stroke="#7fa6bf" strokeWidth="0.6" fill="none" opacity="0.8" />
-      <path d="M 0 3 Q -30 8 -30 24 Q -14 26 0 3 Z" fill="#eef7fc" fillOpacity="0.55" stroke="#7fa6bf" strokeWidth="1" strokeLinejoin="round" />
-      <path d="M 0 3 Q -16 12 -24 20" stroke="#7fa6bf" strokeWidth="0.6" fill="none" opacity="0.8" />
-    </g>
-  );
-  return (
-    <g transform="translate(0 -96)">
-      <g className="anim a-wing">{wing}</g>
-      <g transform="scale(-1 1)">
-        <g className="anim a-wing">{wing}</g>
-      </g>
-    </g>
-  );
-}
-
 function Face({ mood, look }) {
   const ex = look * 1.6;
   const dir = look < 0 ? -1 : 1;
@@ -173,9 +141,9 @@ function Face({ mood, look }) {
 
 /**
  * x,y = נקודת כפות הרגליים בתוך ה-viewBox. s = קנה מידה. flip = מבט הפוך.
- * pose: { legs, armL:[a,e], armR:[a,e], waveL, waveR, holdL, holdR, hatTilt, lean, hat, mood, look, hug, wings }
+ * pose: { legs, armL:[a,e], armR:[a,e], waveL, waveR, holdL, holdR, hatTilt, lean, hat, mood, look, hug }
  */
-export default function Elf({ x = 150, y = 300, s = 1, flip = false, palette = 'wanderer', pose = {}, className }) {
+export default function Wanderer({ x = 150, y = 300, s = 1, flip = false, palette = 'wanderer', pose = {}, className }) {
   const p = PALETTES[palette] ?? PALETTES.wanderer;
   const legs = LEGS[pose.legs ?? 'stand'];
   const hip = legs.hip;
@@ -195,8 +163,6 @@ export default function Elf({ x = 150, y = 300, s = 1, flip = false, palette = '
       <g transform={`translate(0 ${hip}) rotate(${pose.lean ?? 0})`}>
         <g className="anim a-breathe">
           <g transform="translate(0 62)">
-            {pose.wings !== false && <Wings />}
-
             {/* זרוע אחורית */}
             {!pose.hug && <Arm side={-1} a={aR} e={eR} wave={pose.waveR} hold={pose.holdR} />}
 
@@ -224,7 +190,6 @@ export default function Elf({ x = 150, y = 300, s = 1, flip = false, palette = '
 
             {/* ראש */}
             <path d="M -12 -126 q -4 -6 2 -9 M 12 -126 q 4 -6 -2 -9" stroke={p.hair} strokeWidth="3" fill="none" strokeLinecap="round" />
-            <Ears />
             <circle cx="0" cy="-121" r="13" fill="var(--skin)" stroke={INK} strokeWidth="1.3" />
             <Face mood={pose.mood ?? 'smile'} look={pose.look ?? 0} />
             <Hat type={pose.hat ?? 'tall'} tilt={pose.hatTilt ?? -6} />

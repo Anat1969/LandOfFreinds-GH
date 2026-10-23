@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import Particles from './components/Particles.jsx';
 import TopBar from './components/TopBar.jsx';
@@ -7,6 +8,9 @@ import Deck from './pages/Deck.jsx';
 import Draw from './pages/Draw.jsx';
 import Journal from './pages/Journal.jsx';
 import Play from './pages/Play.jsx';
+import Pairs from './pages/games/Pairs.jsx';
+import War from './pages/games/War.jsx';
+import IdCard from './pages/games/IdCard.jsx';
 import { useRoute } from './lib/router.js';
 
 function renderPage(route) {
@@ -18,6 +22,12 @@ function renderPage(route) {
       return <Draw params={route.params} />;
     case '/journal':
       return <Journal />;
+    case '/games/pairs':
+      return <Pairs />;
+    case '/games/war':
+      return <War />;
+    case '/games/id':
+      return <IdCard params={route.params} />;
     case '/play':
     case '/about':
       return <Play />;
@@ -28,7 +38,12 @@ function renderPage(route) {
 
 export default function App() {
   const route = useRoute();
-  const pageKey = route.path.split('/')[1] || 'home';
+  const pageKey = route.path.split('/').slice(1, 3).join('/') || 'home';
+
+  // מעבר לעמוד אחר מתחיל מראש העמוד. שינוי פרמטרים באותו עמוד שומר על הגלילה.
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [pageKey]);
 
   return (
     <div className="app">
