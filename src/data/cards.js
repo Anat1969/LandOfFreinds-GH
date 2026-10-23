@@ -1,4 +1,6 @@
-// חפיסת הכוחות. המבנה נאמן לפורמט של משחק המקור: קלף לבן, חלון צבעי מים, דמות, ושם הכוח בתחתית.
+import { SHEDIM } from './shedim.js';
+
+// חפיסת כוחות הקסם. המבנה נאמן לפורמט של משחק המקור: קלף לבן, חלון צבעי מים, דמות, ושם הכוח בתחתית.
 // האיורים, המשפטים, השאלות והתרגולים מקוריים. כל סצנה מוגדרת ב-src/art/scenes.jsx לפי המפתח scene.
 
 export const CARDS = [
@@ -215,9 +217,25 @@ export const CARDS = [
   },
 ];
 
+for (const card of CARDS) card.deck = 'power';
+
+export { SHEDIM };
+export const ALL_CARDS = [...SHEDIM, ...CARDS];
+
 export function getCard(id) {
-  return CARDS.find((card) => card.id === id) ?? null;
+  return ALL_CARDS.find((card) => card.id === id) ?? null;
 }
+
+export function deckOf(key) {
+  if (key === 'shed') return SHEDIM;
+  if (key === 'power') return CARDS;
+  return ALL_CARDS;
+}
+
+export const DECKS = {
+  power: { label: 'כוחות קסם', one: 'כוח קסם' },
+  shed: { label: 'שדונים', one: 'שדון' },
+};
 
 // פריסת שלושה קלפים: כל עמדה שואלת שאלה אחרת על אותו אדם.
 export const SPREAD_THREE = [

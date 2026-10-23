@@ -1,13 +1,14 @@
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import Card3D from '../components/Card3D.jsx';
-import { CARDS, getCard } from '../data/cards.js';
+import { CARDS, SHEDIM, getCard } from '../data/cards.js';
 
-const FAN = ['c8', 'c3', 'c1', 'c4', 'c11'];
+const FAN = ['e3', 'c15', 'e1', 'c1', 'e8'];
 
 const WAYS = [
-  { to: '#/draw?mode=one', title: 'קלף אחד', text: 'שולפים מהחפיסה המעורבבת, מתבוננים באיור, והופכים לשאלה ולתרגול.' },
-  { to: '#/draw?mode=pick', title: 'בחירה מהמניפה', text: 'הקלפים פרושים הפוכים. בוחרים אחד לפי תחושה, והוא נפתח.' },
-  { to: '#/draw?mode=three', title: 'פריסת שלושה', text: 'כוח שכבר יש בי, כוח שאפשר לחזק, וכוח לדרך.' },
+  { to: '#/games/pairs', title: 'משחק זוגות', text: 'מתאימים כוח קסם לשדון ומנמקים. מי שאוסף חמישה זוגות ראשון מנצח.' },
+  { to: '#/games/war', title: 'משחק מלחמה', text: 'כל אחד פותח קלף ומשכנע למה הקלף שלו חזק יותר. מחליטים יחד.' },
+  { to: '#/draw?mode=shed', title: 'איזה שדון מנהל אותי?', text: 'שליפה עיוורת מתוך מניפת שדונים, ומפגש עם השדון של עכשיו.' },
+  { to: '#/games/id', title: 'תעודת זהות לשדון', text: 'נותנים לשדון שם, מתארים אותו, ובוחרים כוח קסם שעוזר מולו.' },
 ];
 
 export default function Home() {
@@ -31,15 +32,16 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, ease: [0.2, 0.8, 0.2, 1] }}
         >
-          <p className="eyebrow">חפיסת כוחות · {CARDS.length} קלפים</p>
+          <p className="eyebrow">{SHEDIM.length} שדונים · {CARDS.length} כוחות קסם</p>
           <h1>ממלכת הפנים</h1>
           <p className="lead">
-            בכל קלף מסתתר כוח פנימי: תקווה, סבלנות, אומץ, הקשבה. השדון בכובע הגבוה עובר מסצנה לסצנה ומזמין
-            להתבונן, לשאול ולנסות דבר אחד קטן.
+            בכל אחד מאיתנו גרים שדונים: הכעס, הפחד, הדחיינות, הקנאה. וגם כוחות קסם: תקווה, סבלנות, אומץ, הקשבה. כשנותנים
+            לשדון שם ופנים, אפשר לבחור את הכוח שיעמוד מולו.
           </p>
           <div className="cta-row">
-            <a className="btn btn--primary" href="#/draw?mode=one">שליפת קלף</a>
-            <a className="btn" href="#/deck">כל החפיסה</a>
+            <a className="btn btn--primary" href="#/games/pairs">משחק זוגות</a>
+            <a className="btn" href="#/draw?mode=shed">איזה שדון מנהל אותי?</a>
+            <a className="btn" href="#/deck?deck=shed">החפיסות</a>
           </div>
         </motion.div>
 
@@ -66,7 +68,7 @@ export default function Home() {
         </motion.div>
       </div>
 
-      <h2 className="section-title">שלוש דרכים לשחק</h2>
+      <h2 className="section-title">משחקים</h2>
       <div className="ways">
         {WAYS.map((way, i) => (
           <motion.a
@@ -87,7 +89,7 @@ export default function Home() {
 
       <div className="home-note">
         <p>
-          משחקים בקבוצה? בעמוד <a href="#/play">איך משחקים</a> יש משחקים למשפחה, לכיתה ולחדר הטיפול.
+          עוד משחקים למשפחה, לכיתה ולחדר הטיפול בעמוד <a href="#/play">משחקים</a>.
         </p>
       </div>
     </section>

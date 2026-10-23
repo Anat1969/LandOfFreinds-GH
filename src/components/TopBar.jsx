@@ -6,10 +6,10 @@ export const CLAUDE_DEV_URL = 'https://claude.ai/code/session_015iJnWkFEQKseWeRQ
 export const RESEARCH_PROJECT_URL = 'https://claude.ai/chat/7ee3fc1b-8d3d-44bf-83d9-fff6a62fe78d';
 
 const NAV = [
-  { to: '/deck', label: 'החפיסה' },
+  { to: '/deck', label: 'החפיסות' },
   { to: '/draw', label: 'שליפה' },
+  { to: '/play', label: 'משחקים' },
   { to: '/journal', label: 'יומן' },
-  { to: '/play', label: 'איך משחקים' },
 ];
 
 export default function TopBar({ path }) {
@@ -110,7 +110,7 @@ export default function TopBar({ path }) {
           <a
             key={item.to}
             href={`#${item.to}`}
-            className={path.startsWith(item.to) ? 'nav-link active' : 'nav-link'}
+            className={path.startsWith(item.to) || (item.to === '/play' && path.startsWith('/games')) ? 'nav-link active' : 'nav-link'}
           >
             {item.label}
           </a>
