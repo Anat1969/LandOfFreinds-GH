@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { go } from '../lib/router.js';
 
-// קישורים קבועים. שנה כאן כשיש קישור לפרויקט המחקר של ענת.
+// קישורים קבועים: שיחת הפיתוח ופרויקט המחקר של ענת.
 export const CLAUDE_DEV_URL = 'https://claude.ai/code/session_015iJnWkFEQKseWeRQGCaajZ';
-export const RESEARCH_PROJECT_URL = '';
+export const RESEARCH_PROJECT_URL = 'https://claude.ai/chat/7ee3fc1b-8d3d-44bf-83d9-fff6a62fe78d';
 
 const NAV = [
   { to: '/deck', label: 'החפיסה' },
@@ -15,7 +15,28 @@ const NAV = [
 export default function TopBar({ path }) {
   const [copied, setCopied] = useState(false);
   const [installEvent, setInstallEvent] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
   const barRef = useRef(null);
+  const menuRef = useRef(null);
+
+  // תפריט הלוגו נסגר בלחיצה מחוץ לו, ב-Escape ובמעבר עמוד.
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+    function onDown(e) {
+      if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false);
+    }
+    function onKey(e) {
+      if (e.key === 'Escape') setMenuOpen(false);
+    }
+    document.addEventListener('pointerdown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('pointerdown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [menuOpen]);
+
+  useEffect(() => setMenuOpen(false), [path]);
 
   // גובה הסרגל נשמר במשתנה CSS, כדי שחלונות העמקה ייפתחו מתחתיו.
   useEffect(() => {
@@ -96,26 +117,37 @@ export default function TopBar({ path }) {
         ))}
       </nav>
 
-      <div className="actions">
-        <button type="button" className="chip" onClick={copyLink}>
-          {copied ? 'הקישור הועתק' : 'העתקת קישור'}
+      <div className="studio" ref={menuRef}>
+        <button
+          type="button"
+          className={menuOpen ? 'studio-btn open' : 'studio-btn'}
+          aria-haspopup="menu"
+          aria-expanded={menuOpen}
+          aria-controls="studio-menu"
+          onClick={() => setMenuOpen((v) => !v)}
+        >
+          <span className="studio-mark">A&amp;I</span>
+          <span className="studio-name">אד' ענת שטיבלמן</span>
+          {installEvent && <span className="studio-dot" aria-label="אפשר להתקין" />}
         </button>
-        <a className="chip" href={CLAUDE_DEV_URL} target="_blank" rel="noopener noreferrer">
-          שיחת הפיתוח
-        </a>
-        {RESEARCH_PROJECT_URL ? (
-          <a className="chip" href={RESEARCH_PROJECT_URL} target="_blank" rel="noopener noreferrer">
-            פרויקט המחקר
-          </a>
-        ) : (
-          <button type="button" className="chip" disabled title="יופעל כשיוגדר קישור לפרויקט המחקר">
-            פרויקט המחקר
-          </button>
-        )}
-        {installEvent && (
-          <button type="button" className="chip chip--accent" onClick={install}>
-            התקנת האפליקציה
-          </button>
+
+        {menuOpen && (
+          <div className="studio-menu" id="studio-menu" role="menu">
+            <button type="button" role="menuitem" className="studio-item" onClick={copyLink}>
+              {copied ? 'הקישור הועתק' : 'העתקת קישור'}
+            </button>
+            <a role="menuitem" className="studio-item" href={CLAUDE_DEV_URL} target="_blank" rel="noopener noreferrer">
+              שיחת הפיתוח
+            </a>
+            <a role="menuitem" className="studio-item" href={RESEARCH_PROJECT_URL} target="_blank" rel="noopener noreferrer">
+              פרויקט המחקר
+            </a>
+            {installEvent && (
+              <button type="button" role="menuitem" className="studio-item studio-item--accent" onClick={install}>
+                התקנת האפליקציה
+              </button>
+            )}
+          </div>
         )}
       </div>
     </header>
