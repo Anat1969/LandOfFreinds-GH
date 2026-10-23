@@ -1,5 +1,5 @@
 // ספריית אביזרים לסצנות. כל אביזר ממוקם ב-x,y, וכל הנפשה מסתובבת סביב נקודת הראשית המקומית שלה.
-import { INK } from './Wanderer.jsx';
+import { INK } from './Elf.jsx';
 import { blobPath, makeRandom } from '../lib/prng.js';
 
 // עטיפה להנפשה: ממקמת, ואז מפעילה מחלקת אנימציה סביב (0,0).
