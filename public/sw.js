@@ -1,5 +1,5 @@
 // שירות רשת: שומר את מעטפת האפליקציה והנכסים במטמון, כדי שתיפתח גם בלי רשת.
-const CACHE = 'mamlechet-hapnim-v1';
+const CACHE = 'mamlechet-hapnim-v2';
 const SHELL = ['/', '/index.html', '/manifest.webmanifest', '/icons/icon-192.png', '/icons/icon-512.png'];
 
 self.addEventListener('install', (event) => {
