@@ -7,8 +7,8 @@
 
 ## כללים קבועים
 - **שפה**: עברית בכל הממשק והתיעוד. RTL. בלי אייקונים ובלי סמלים דקורטיביים, כולל בכפתורים.
-- **סרגל עליון**: קבוע בכל הדפים. שם האפליקציה מקשר לדף הבית. הכפתורים: "העתקת קישור", "שיחת הפיתוח", "פרויקט המחקר", ו"התקנת האפליקציה" כשהדפדפן מציע התקנה.
-- **פרויקט המחקר**: הכפתור מושבת עד שיוגדר הקישור ב-`src/components/TopBar.jsx` (`RESEARCH_PROJECT_URL`).
+- **סרגל עליון**: קבוע בכל הדפים. שם האפליקציה מקשר לדף הבית. "העתקת קישור", "שיחת הפיתוח", "פרויקט המחקר" ו"התקנת האפליקציה" נמצאים בתוך כפתור הלוגו A&I (`<ai-menu>`).
+- **פרויקט המחקר**: מופיע בכפתור הלוגו כשיוגדר הקישור ב-`src/components/TopBar.jsx` (`RESEARCH_PROJECT_URL`).
 - **התקנה**: manifest, `public/sw.js`, ואייקוני PNG ללא טקסט. לא לשנות את ה-scope של השירות.
 - **פרטיות**: אין שרת ואין חשבונות. נתונים רק ב-localStorage. לא להוסיף שליחת נתונים לצד שלישי בלי אישור מפורש.
 - **זכויות**: שמות, דמויות וטקסטים מקוריים. אסור להעתיק קלפים, איורים או טקסטים של מוצרים מסחריים קיימים.
@@ -27,3 +27,6 @@
 
 ## תיקונים
 _(הוסיפו כאן שורה מתוארכת לכל תיקון שענת מבקשת.)_
+
+## A&I logo button
+The top bar holds only the app name (links home), content navigation, and ONE logo button "אד' ענת שטיבלמן A&I" (`<ai-menu>` from https://appofapp-gh.vercel.app/ai-menu.js). Every editing and development action (העתקת קישור, שיחת הפיתוח, פרויקט המחקר, התקנת האפליקציה, edit mode, add, delete) lives only inside it, never as loose buttons. Standard: https://github.com/Anat1969/AppOfApp-GH/blob/main/docs/ai-menu-standard.md
