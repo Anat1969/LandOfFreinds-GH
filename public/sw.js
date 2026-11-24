@@ -1,5 +1,5 @@
 // שירות רשת: שומר את מעטפת האפליקציה והנכסים במטמון, כדי שתיפתח גם בלי רשת.
-const CACHE = 'mamlechet-hapnim-v2';
+const CACHE = 'mamlechet-hapnim-v3';
 const SHELL = ['/', '/index.html', '/manifest.webmanifest', '/icons/icon-192.png', '/icons/icon-512.png'];
 
 self.addEventListener('install', (event) => {
@@ -24,6 +24,16 @@ self.addEventListener('fetch', (event) => {
 
   event.respondWith(
     caches.open(CACHE).then(async (cache) => {
+      // דף: תמיד מהרשת, כדי שלא תוצג גרסה ישנה. המטמון רק כשאין רשת.
+      if (request.mode === 'navigate') {
+        try {
+          const response = await fetch(request);
+          if (response.ok) cache.put('/index.html', response.clone());
+          return response;
+        } catch {
+          return (await cache.match(request)) || (await cache.match('/index.html'));
+        }
+      }
       const cached = await cache.match(request);
       const network = fetch(request)
         .then((response) => {
@@ -32,9 +42,6 @@ self.addEventListener('fetch', (event) => {
         })
         .catch(() => null);
 
-      if (request.mode === 'navigate') {
-        return cached || (await network) || (await cache.match('/index.html'));
-      }
       return cached || (await network) || new Response('', { status: 504 });
     })
   );
